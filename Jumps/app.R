@@ -161,8 +161,21 @@ server <- function(input, output, session) {
       "<br>Distance:", round(y_col, 2), "ft"
     )
     
+    # Compute bottom position for X marks
+    y_min <- min(y_col, na.rm = TRUE)
+    
     p <- ggplot(df_plot, aes(x = PlotDate, y = y_col, color = Name, text = tooltip_text)) +
       geom_point(size = 3, alpha = 0.85) +
+      # Add X marks for scratches (do not affect trendlines)
+      geom_point(
+        data = df_plot %>% filter(Mark == "X"),
+        aes(x = PlotDate, y = y_min - 0.5, color = Name),
+        inherit.aes = FALSE,
+        shape = 4,
+        size = 3,
+        stroke = 1.2,
+        alpha = 0.9
+      ) +
       labs(
         title = event_title,
         x = "Date of Jump",
