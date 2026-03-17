@@ -49,7 +49,10 @@ ui <- fluidPage(
         actionButton("toggleFilters", "Show/Hide Filters", class = "btn btn-sm btn-secondary"),
         hidden(div(id = "filterPanel", style = "margin-top: 10px;",
                    selectInput("division", "Filter by Division:", choices = c("All", unique(df$Division)), selected = "All", width = "100%"),
-                   selectInput("event", "Filter by Event:", choices = c("All", unique(df$Event)), selected = "All", width = "100%"),
+                   selectInput("event", "Filter by Event:", 
+                               choices = c("Long", "Triple"), 
+                               selected = "Long", 
+                               width = "100%"),
                    selectInput("athlete", "Filter by Athlete:", choices = c("All", unique(df$Name)), selected = "All", width = "100%"),
                    selectInput("trendType", "Trendline Type:", choices = c("Linear", "LOESS"), selected = "Linear", width = "100%")
         ))
@@ -113,9 +116,10 @@ server <- function(input, output, session) {
     if (input$division != "All") {
       df_filtered <- df_filtered[df_filtered$Division == input$division, ]
     }
-    if (input$event != "All") {
-      df_filtered <- df_filtered[df_filtered$Event == input$event, ]
-    }
+    
+    # Required event selection (no All)
+    df_filtered <- df_filtered[grepl(input$event, df_filtered$Event, ignore.case = TRUE), ]
+    
     if (input$athlete != "All") {
       df_filtered <- df_filtered[df_filtered$Name == input$athlete, ]
     }
@@ -142,9 +146,7 @@ server <- function(input, output, session) {
     y_col <- df_plot$Distance_ft
     y_label <- "Distance (ft)"
     
-    event_title <- if (input$event == "All") {
-      "All Jumps"
-    } else if (grepl("Triple", input$event, ignore.case = TRUE)) {
+    event_title <- if (grepl("Triple", input$event, ignore.case = TRUE)) {
       "Triple Jumps"
     } else {
       "Long Jumps"
