@@ -164,8 +164,33 @@ server <- function(input, output, session) {
     # Compute bottom position for X marks
     y_min <- min(y_col, na.rm = TRUE)
     
+    # Compute bottom and top for annotations
+    y_min <- min(y_col, na.rm = TRUE)
+    y_max <- max(y_col, na.rm = TRUE)
+    
+    # Build meet boundaries
+    meet_bounds <- df_plot %>%
+      group_by(Meet) %>%
+      summarize(
+        start = min(PlotDate),
+        end = max(PlotDate),
+        mid = mean(c(min(PlotDate), max(PlotDate))),
+        .groups = "drop"
+      )
+    
     p <- ggplot(df_plot, aes(x = PlotDate, y = y_col, color = Name, text = tooltip_text)) +
       geom_point(size = 3, alpha = 0.85) +
+      # Vertical dashed lines for meet boundaries
+      geom_vline(data = meet_bounds, aes(xintercept = start), linetype = "dashed", color = "gray50", alpha = 0.6, inherit.aes = FALSE) +
+      geom_vline(data = meet_bounds, aes(xintercept = end), linetype = "dashed", color = "gray50", alpha = 0.6, inherit.aes = FALSE) +
+      # Meet labels at top
+      geom_text(
+        data = meet_bounds,
+        aes(x = mid, y = y_max + 0.5, label = Meet),
+        inherit.aes = FALSE,
+        size = 3,
+        color = "black"
+      ) +
       # Add X marks for scratches (do not affect trendlines)
       geom_point(
         data = df_plot %>% filter(Mark == "X"),
