@@ -198,6 +198,7 @@ server <- function(input, output, session) {
       "<br>Date:", format(df_plot$Date, "%b %d, %Y"),
       "<br>Division:", df_plot$Division,
       "<br>Event:", df_plot$Event,
+      "<br>Attempt:", df_plot$TryNum,
       "<br>Mark:", df_plot$Mark,
       "<br>Distance:", round(y_col, 2), "ft"
     )
@@ -237,7 +238,7 @@ server <- function(input, output, session) {
         data = df_plot %>% filter(Mark %in% c("X", "PASS")),
         aes(x = PlotDate, y = y_min - 0.5, label = ifelse(Mark == "PASS", "P", "X"), color = Name),
         inherit.aes = FALSE,
-        size = 3.5,
+        size = 4.5,
         alpha = 0.9
       ) +
       labs(
