@@ -53,7 +53,13 @@ ui <- fluidPage(
                                choices = c("Long", "Triple"), 
                                selected = "Long", 
                                width = "100%"),
-                   selectInput("athlete", "Filter by Athlete:", choices = c("All", unique(df$Name)), selected = "All", width = "100%"),
+                   selectInput(
+                     "athlete",
+                     "Filter by Athlete:",
+                     choices = c("All", sort(unique(df$Name))),
+                     selected = "All",
+                     width = "100%"
+                   ),
                    selectInput("trendType", "Trendline Type:", choices = c("Linear", "LOESS"), selected = "Linear", width = "100%")
         ))
       )
@@ -108,6 +114,29 @@ server <- function(input, output, session) {
   observeEvent(input$btnHideBelowTop5, {
     top5_state$hideBelowTop5 <- !top5_state$hideBelowTop5
     toggleClass("btnHideBelowTop5", "btn-active", condition = top5_state$hideBelowTop5)
+  })
+  
+  observe({
+    req(input$event)
+    
+    filtered_names <- df %>%
+      filter(grepl(input$event, Event, ignore.case = TRUE)) %>%
+      distinct(Name) %>%
+      pull(Name) %>%
+      sort()
+    
+    updateSelectInput(
+      session,
+      "athlete",
+      choices = c("All", filtered_names),
+      selected = "All"
+    )
+  })
+  
+  observeEvent(input$athlete, {
+    if (input$athlete != "All") {
+      updateSelectInput(session, "division", selected = "All")
+    }
   })
   
   filtered_data <- reactive({
