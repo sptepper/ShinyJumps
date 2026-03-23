@@ -192,13 +192,11 @@ server <- function(input, output, session) {
         color = "black"
       ) +
       # Add X marks for scratches (do not affect trendlines)
-      geom_point(
-        data = df_plot %>% filter(Mark == "X"),
-        aes(x = PlotDate, y = y_min - 0.5, color = Name),
+      geom_text(
+        data = df_plot %>% filter(Mark %in% c("X", "PASS")),
+        aes(x = PlotDate, y = y_min - 0.5, label = ifelse(Mark == "PASS", "P", "X"), color = Name),
         inherit.aes = FALSE,
-        shape = 4,
-        size = 3,
-        stroke = 1.2,
+        size = 3.5,
         alpha = 0.9
       ) +
       labs(
