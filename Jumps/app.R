@@ -139,6 +139,23 @@ server <- function(input, output, session) {
     }
   })
   
+  top5_names_reactive <- reactive({
+    df_filtered <- df
+    
+    if (input$division != "All") {
+      df_filtered <- df_filtered[df_filtered$Division == input$division, ]
+    }
+    
+    df_filtered <- df_filtered[grepl(input$event, df_filtered$Event, ignore.case = TRUE), ]
+    
+    df_filtered %>%
+      group_by(Name) %>%
+      summarize(best = max(Distance_m, na.rm = TRUE), .groups = "drop") %>%
+      arrange(desc(best)) %>%
+      slice_head(n = 5) %>%
+      pull(Name)
+  })
+  
   filtered_data <- reactive({
     df_filtered <- df
     
@@ -153,12 +170,7 @@ server <- function(input, output, session) {
       df_filtered <- df_filtered[df_filtered$Name == input$athlete, ]
     }
     
-    top5_names <- df_filtered %>%
-      group_by(Name) %>%
-      summarize(best = max(Distance_m, na.rm = TRUE), .groups = "drop") %>%
-      arrange(desc(best)) %>%
-      slice_head(n = 5) %>%
-      pull(Name)
+    top5_names <- top5_names_reactive()
     
     if (top5_state$hideTop5) {
       df_filtered <- df_filtered[!df_filtered$Name %in% top5_names, ]
