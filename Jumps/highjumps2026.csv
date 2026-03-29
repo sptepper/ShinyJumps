@@ -1,4 +1,16 @@
 Name,Division,Date,Meet,Event,Try,Height,Result
+Travis Torres,Boy,03/14/2026,Jamboree,High,?,"5'10""",O
+John Boehl,Boy,03/14/2026,Jamboree,High,?,"5'8""",O
+Ryder Wray,Boy,03/14/2026,Jamboree,High,?,"5'6""",O
+Ryan Fox,Boy,03/14/2026,Jamboree,High,?,"5'6""",O
+Conner Lillquist,Boy,03/14/2026,Jamboree,High,?,"5'4""",O
+Leo Wray,Boy,03/14/2026,Jamboree,High,?,"4'8""",O
+Josiah Walker,Boy,03/14/2026,Jamboree,High,1,"5'8""",X
+Josiah Walker,Boy,03/14/2026,Jamboree,High,2,"5'8""",X
+Josiah Walker,Boy,03/14/2026,Jamboree,High,3,"5'8""",X
+Hannah Roche,Girl,03/14/2026,Jamboree,High,?,"4'4""",O
+Makenna Spencer,Girl,03/14/2026,Jamboree,High,?,"4'2""",O
+Summer Ermine,Girl,03/14/2026,Jamboree,High,?,"4'2""",O
 Makenna Spencer,Girl,03/21/2026,Ray Cockrum,High,1,"4'2""",O
 Makenna Spencer,Girl,03/21/2026,Ray Cockrum,High,2,"4'4""",X
 Makenna Spencer,Girl,03/21/2026,Ray Cockrum,High,3,"4'4""",O
@@ -37,3 +49,71 @@ Josiah Walker,Boy,03/21/2026,Ray Cockrum,High,5,"5'10""",O
 Josiah Walker,Boy,03/21/2026,Ray Cockrum,High,6,"6'0""",X
 Josiah Walker,Boy,03/21/2026,Ray Cockrum,High,7,"6'0""",O
 Josiah Walker,Boy,03/21/2026,Ray Cockrum,High,8,"6'3""",X
+Josiah Walker,Boy,03/21/2026,Ray Cockrum,High,9,"6'3""",X
+Josiah Walker,Boy,03/21/2026,Ray Cockrum,High,10,"6'3""",X
+Summer Ermine,Girl,03/25/2026,Othello JV,High,?,"4'4""",O
+Makenna Spencer,Girl,03/25/2026,Othello JV,High,?,"4'2""",O
+Taryn Barton,Girl,03/25/2026,Othello JV,High,?,"3'10""",O
+John Boehl,Boy,03/25/2026,Othello JV,High,1,"5'2""",O
+John Boehl,Boy,03/25/2026,Othello JV,High,2,"5'4""",O
+John Boehl,Boy,03/25/2026,Othello JV,High,3,"5'6""",O
+John Boehl,Boy,03/25/2026,Othello JV,High,4,"5'8""",X
+John Boehl,Boy,03/25/2026,Othello JV,High,5,"5'8""",X
+John Boehl,Boy,03/25/2026,Othello JV,High,6,"5'8""",O
+John Boehl,Boy,03/25/2026,Othello JV,High,7,"5'10""",X
+John Boehl,Boy,03/25/2026,Othello JV,High,8,"5'10""",X
+John Boehl,Boy,03/25/2026,Othello JV,High,9,"5'10""",X
+Conner Lillquist,Boy,03/25/2026,Othello JV,High,1,"5'0""",X
+Conner Lillquist,Boy,03/25/2026,Othello JV,High,2,"5'0""",O
+Conner Lillquist,Boy,03/25/2026,Othello JV,High,3,"5'2""",X
+Conner Lillquist,Boy,03/25/2026,Othello JV,High,4,"5'2""",O
+Conner Lillquist,Boy,03/25/2026,Othello JV,High,5,"5'4""",X
+Conner Lillquist,Boy,03/25/2026,Othello JV,High,6,"5'4""",X
+Conner Lillquist,Boy,03/25/2026,Othello JV,High,7,"5'4""",O
+Conner Lillquist,Boy,03/25/2026,Othello JV,High,8,"5'6""",X
+Conner Lillquist,Boy,03/25/2026,Othello JV,High,9,"5'6""",O
+Conner Lillquist,Boy,03/25/2026,Othello JV,High,10,"5'8""",X
+Conner Lillquist,Boy,03/25/2026,Othello JV,High,11,"5'8""",X
+Conner Lillquist,Boy,03/25/2026,Othello JV,High,12,"5'8""",O
+Conner Lillquist,Boy,03/25/2026,Othello JV,High,13,"5'10""",X
+Conner Lillquist,Boy,03/25/2026,Othello JV,High,14,"5'10""",X
+Conner Lillquist,Boy,03/25/2026,Othello JV,High,15,"5'10""",X
+Bryan Stuber,Boy,03/25/2026,Othello JV,High,1,"4'8""",X
+Bryan Stuber,Boy,03/25/2026,Othello JV,High,2,"4'8""",X
+Bryan Stuber,Boy,03/25/2026,Othello JV,High,3,"4'8""",X
+Cameron Touch,Boy,03/25/2026,Othello JV,High,1,"4'8""",X
+Cameron Touch,Boy,03/25/2026,Othello JV,High,2,"4'8""",O
+Cameron Touch,Boy,03/25/2026,Othello JV,High,3,"4'10""",X
+Cameron Touch,Boy,03/25/2026,Othello JV,High,4,"4'10""",O
+Cameron Touch,Boy,03/25/2026,Othello JV,High,5,"5'0""",X
+Cameron Touch,Boy,03/25/2026,Othello JV,High,6,"5'0""",X
+Cameron Touch,Boy,03/25/2026,Othello JV,High,7,"5'0""",X
+Leo Wray,Boy,03/25/2026,Othello JV,High,1,"4'8""",O
+Leo Wray,Boy,03/25/2026,Othello JV,High,2,"4'10""",X
+Leo Wray,Boy,03/25/2026,Othello JV,High,3,"4'10""",O
+Leo Wray,Boy,03/25/2026,Othello JV,High,4,"5'0""",X
+Leo Wray,Boy,03/25/2026,Othello JV,High,5,"5'0""",X
+Leo Wray,Boy,03/25/2026,Othello JV,High,6,"5'0""",X
+Ryder Wray,Boy,03/25/2026,Othello JV,High,1,"5'0""",O
+Ryder Wray,Boy,03/25/2026,Othello JV,High,2,"5'2""",O
+Ryder Wray,Boy,03/25/2026,Othello JV,High,3,"5'4""",O
+Ryder Wray,Boy,03/25/2026,Othello JV,High,4,"5'6""",X
+Ryder Wray,Boy,03/25/2026,Othello JV,High,5,"5'6""",X
+Ryder Wray,Boy,03/25/2026,Othello JV,High,6,"5'6""",X
+Hannah Roche,Girl,03/27/2026,Twilight Invite,High,1,"4'2""",X
+Hannah Roche,Girl,03/27/2026,Twilight Invite,High,2,"4'2""",O
+Hannah Roche,Girl,03/27/2026,Twilight Invite,High,3,"4'4""",O
+Hannah Roche,Girl,03/27/2026,Twilight Invite,High,4,"4'6""",X
+Hannah Roche,Girl,03/27/2026,Twilight Invite,High,5,"4'6""",X
+Hannah Roche,Girl,03/27/2026,Twilight Invite,High,6,"4'6""",O
+Hannah Roche,Girl,03/27/2026,Twilight Invite,High,7,"4'8""",X
+Hannah Roche,Girl,03/27/2026,Twilight Invite,High,8,"4'8""",X
+Hannah Roche,Girl,03/27/2026,Twilight Invite,High,9,"4'8""",X
+Aly Adan,Girl,03/27/2026,Twilight Invite,High,1,"4'8""",O
+Aly Adan,Girl,03/27/2026,Twilight Invite,High,2,"4'10""",O
+Aly Adan,Girl,03/27/2026,Twilight Invite,High,3,"5'0""",X
+Aly Adan,Girl,03/27/2026,Twilight Invite,High,4,"5'0""",O
+Aly Adan,Girl,03/27/2026,Twilight Invite,High,5,"5'2""",O
+Aly Adan,Girl,03/27/2026,Twilight Invite,High,6,"5'3""",X
+Aly Adan,Girl,03/27/2026,Twilight Invite,High,7,"5'3""",X
+Aly Adan,Girl,03/27/2026,Twilight Invite,High,8,"5'3""",X
