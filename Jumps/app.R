@@ -368,9 +368,9 @@ server <- function(input, output, session) {
           aes(x = best_date, y = best_val, color = Name, group = Name),
           size = 4,
           shape = 21,
-          stroke = 0.4,
+          stroke = 0.45,
           fill = NA,
-          color = "black",
+          color = "#363636",
           inherit.aes = FALSE
         )
       
