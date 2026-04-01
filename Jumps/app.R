@@ -79,45 +79,75 @@ df_all <- bind_rows(df2025, df2026, df_high)
 ui <- fluidPage(
   useShinyjs(),
   titlePanel("Jump Attempts"),
+  
+  # --- Top Control Bar ---
   fluidRow(
     column(
-      width = 3,
-      wellPanel(
-        actionButton("toggleFilters", "Show/Hide Filters", class = "btn btn-sm btn-secondary"),
-        hidden(div(id = "filterPanel", style = "margin-top: 10px;",
-                   selectInput("event", "Event:", choices = c("Long","Triple","High"), selected = "Long", width = "100%"),
-                   selectInput("year", "Year:", choices = c("2025","2026"), selected = "2026", width = "100%"),
-                   selectInput("division", "Division:", choices = c("All", unique(df_all$Division)), selected = "All", width = "100%"),
-                   selectInput("athlete", "Athlete:", choices = c("All", sort(unique(df_all$Name))), selected = "All", width = "100%"),
-                   selectInput("trendType", "Trendline Type:", choices = c("Linear","LOESS"), selected = "Linear", width = "100%")
-        ))
-      )
-    ),
-    column(
-      width = 9,
-      fluidRow(
-        column(width = 12,
-               div(style = "text-align: center; margin-bottom: 10px;",
-                   actionButton("btnHideTop5", "Hide Top 5", class = "btn btn-sm btn-outline-primary", style = "margin-right: 5px;"),
-                   actionButton("btnHideBelowTop5", "Hide Below Top 5", class = "btn btn-sm btn-outline-primary")
-               )
+      width = 12,
+      div(
+        style = "display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-bottom: 15px;",
+        
+        # Filters
+        selectInput("year",  " ",
+                    choices = c("2025","2026"),
+                    selected = "2026", width = "100px"),
+        
+        selectInput("event", " " ,
+                    choices = c("Long","Triple","High"),
+                    selected = "Long", width = "120px"),
+        
+        
+        selectInput("division", "Division:",
+                    choices = c("All", unique(df_all$Division)),
+                    selected = "All", width = "160px"),
+        
+        selectInput("athlete", "Athlete:",
+                    choices = c("All Athletes", sort(unique(df_all$Name))),
+                    selected = "All", width = "180px"),
+        
+        selectInput("trendType", "Trend:",
+                    choices = c("Linear","LOESS"),
+                    selected = "Linear", width = "120px"),
+        
+        sliderInput(
+          "rankRange",
+          "PB Rank:",
+          min = 1,
+          max = 10,   # placeholder, will update dynamically
+          value = c(1, 10),
+          step = 1,
+          width = "250px"
         )
-      ),
+      )
+    )
+  ),
+  
+  # --- Plot ---
+  fluidRow(
+    column(
+      width = 12,
       plotlyOutput("jumpPlot", height = "650px")
     )
   ),
-  tags$style(HTML(".plotly-legend {position: relative !important; display: flex !important; flex-wrap: wrap !important; justify-content: center !important;}
-                   .plot-container .legend {margin-top: 20px;}
-                   .btn-sm {padding: 4px 8px; font-size: 0.8em;}
-                   .btn-active {background-color: #0056b3 !important; color: white !important;}"))
+  
+  tags$style(HTML("
+    .plotly-legend {
+      position: relative !important;
+      display: flex !important;
+      flex-wrap: wrap !important;
+      justify-content: center !important;
+    }
+    .plot-container .legend {margin-top: 20px;}
+    .btn-sm {padding: 4px 8px; font-size: 0.8em;}
+    .btn-active {background-color: #0056b3 !important; color: white !important;}
+    
+    /* Make labels tighter */
+    .form-group {margin-bottom: 5px;}
+  "))
 )
 
 # --- Server ---
 server <- function(input, output, session) {
-  
-  observeEvent(input$toggleFilters, { toggle("filterPanel", anim = TRUE) })
-  
-  top5_state <- reactiveValues(hideTop5 = FALSE, hideBelowTop5 = FALSE)
   
   observeEvent(input$btnHideTop5, {
     top5_state$hideTop5 <- !top5_state$hideTop5
@@ -141,25 +171,76 @@ server <- function(input, output, session) {
     updateSelectInput(session,"athlete", choices=c("All",athlete_choices), selected="All")
   })
   
-  top5_names_reactive <- reactive({
-    df_filtered <- df_all %>% filter(Year==input$year)
-    if(input$division!="All") df_filtered <- df_filtered %>% filter(Division==input$division)
-    df_filtered <- df_filtered %>% filter(grepl(input$event, Event, ignore.case=TRUE))
-    df_filtered %>% group_by(Name) %>% summarize(best=max(ifelse(grepl("High", Event, ignore.case=TRUE), Height_ft, Distance_ft),na.rm=TRUE),.groups="drop") %>%
-      arrange(desc(best)) %>% slice_head(n=5) %>% pull(Name)
+  # Rank Range Slider
+  observe({
+    ranks <- ranked_athletes()
+    n <- nrow(ranks)
+    
+    updateSliderInput(
+      session,
+      "rankRange",
+      min = 1,
+      max = max(1, n),
+      value = c(1, max(1, n))
+    )
   })
   
   filtered_data <- reactive({
-    df_filtered <- df_all %>% filter(Year==input$year)
-    if(input$division!="All") df_filtered <- df_filtered %>% filter(Division==input$division)
-    df_filtered <- df_filtered %>% filter(grepl(input$event, Event, ignore.case=TRUE))
-    if(input$athlete!="All") df_filtered <- df_filtered %>% filter(Name==input$athlete)
+    df_filtered <- df_all %>%
+      filter(Year == input$year)
     
-    top5_names <- top5_names_reactive()
-    if(top5_state$hideTop5) df_filtered <- df_filtered %>% filter(!Name %in% top5_names)
-    if(top5_state$hideBelowTop5) df_filtered <- df_filtered %>% filter(Name %in% top5_names)
+    if (input$division != "All") {
+      df_filtered <- df_filtered %>% filter(Division == input$division)
+    }
+    
+    df_filtered <- df_filtered %>%
+      filter(grepl(input$event, Event, ignore.case = TRUE))
+    
+    # Get ranked athletes
+    ranks <- ranked_athletes()
+    
+    selected_names <- ranks %>%
+      filter(rank >= input$rankRange[1],
+             rank <= input$rankRange[2]) %>%
+      pull(Name)
+    
+    df_filtered <- df_filtered %>%
+      filter(Name %in% selected_names)
+    
+    if (input$athlete != "All") {
+      df_filtered <- df_filtered %>% filter(Name == input$athlete)
+    }
     
     df_filtered
+  })
+  
+  ranked_athletes <- reactive({
+    df_filtered <- df_all %>%
+      filter(Year == input$year)
+    
+    if (input$division != "All") {
+      df_filtered <- df_filtered %>% filter(Division == input$division)
+    }
+    
+    df_filtered <- df_filtered %>%
+      filter(grepl(input$event, Event, ignore.case = TRUE))
+    
+    # Choose correct metric
+    df_summary <- df_filtered %>%
+      group_by(Name) %>%
+      summarize(
+        best = max(
+          ifelse(grepl("High", Event, ignore.case = TRUE),
+                 Height_ft,
+                 Distance_ft),
+          na.rm = TRUE
+        ),
+        .groups = "drop"
+      ) %>%
+      arrange(desc(best)) %>%
+      mutate(rank = row_number())
+    
+    df_summary
   })
   
   output$jumpPlot <- renderPlotly({
