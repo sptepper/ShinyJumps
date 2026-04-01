@@ -105,9 +105,13 @@ ui <- fluidPage(
                     choices = c("All Athletes", sort(unique(df_all$Name))),
                     selected = "All", width = "180px"),
         
-        selectInput("trendType", "Trend:",
-                    choices = c("Linear","LOESS"),
-                    selected = "Linear", width = "120px"),
+        selectInput(
+          "trendType",
+          "Trend:",
+          choices = c("None", "Linear", "LOESS"),
+          selected = "None",
+          width = "120px"
+        ),
         
         sliderInput(
           "rankRange",
@@ -373,10 +377,24 @@ server <- function(input, output, session) {
     
     
     # Trendlines
-    if (input$trendType == "Linear") {
-      p <- p + geom_smooth(aes(group = Name), method = "lm", se = FALSE, size = 0.2)
-    } else {
-      p <- p + geom_smooth(aes(group = Name), method = "loess", se = FALSE, size = 0.2)
+    if (!is_high && input$trendType != "None") {
+      if (input$trendType == "Linear") {
+        p <- p + geom_smooth(
+          aes(group = Name),
+          method = "lm",
+          se = FALSE,
+          size = 0.4,
+          alpha = 0.25
+        )
+      } else if (input$trendType == "LOESS") {
+        p <- p + geom_smooth(
+          aes(group = Name),
+          method = "loess",
+          se = FALSE,
+          size = 0.4,
+          alpha = 0.25
+        )
+      }
     }
     
     ggplotly(p, tooltip = "text") %>%
