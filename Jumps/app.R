@@ -66,11 +66,24 @@ convert_height_to_ft <- function(h) {
 df_high$Height_ft <- sapply(df_high$Height, convert_height_to_ft)
 
 df_high <- df_high %>%
-  group_by(Date) %>%
-  arrange(Date, Name) %>%
-  mutate(Offset = TryNum * 0.6) %>%
-  ungroup() %>%
-  mutate(PlotDate = Date + Offset)
+  group_by(Meet, Date, Name) %>%
+  arrange(Height_ft, TryNum) %>%
+  ungroup()
+
+# Create a meet-wide attempt index
+df_high <- df_high %>%
+  group_by(Meet, Date) %>%
+  arrange(Height_ft, TryNum) %>%
+  mutate(
+    attempt_index = row_number(),
+    total_attempts = n()
+  ) %>%
+  ungroup()
+
+df_high <- df_high %>%
+  mutate(
+    PlotDate = Date + (attempt_index / total_attempts) * 2  # <-- controls width
+  )
 
 # Combine all
 df_all <- bind_rows(df2025, df2026, df_high)
