@@ -287,6 +287,26 @@ server <- function(input, output, session) {
       summarize(start=min(PlotDate), end=max(PlotDate),
                 mid=mean(c(min(PlotDate),max(PlotDate))), .groups="drop")
     
+    best_per_meet <- df_plot %>%
+      group_by(Name, Meet) %>%
+      filter(!is.na(y_val)) %>%
+      mutate(best_val = max(y_val, na.rm = TRUE)) %>%
+      summarize(
+        best_val = first(best_val),
+        best_date = max(PlotDate[y_val == best_val]),
+        .groups = "drop"
+      )
+    
+    season_best <- df_plot %>%
+      group_by(Name) %>%
+      filter(!is.na(y_val)) %>%
+      mutate(best_val = max(y_val, na.rm = TRUE)) %>%
+      summarize(
+        best_val = first(best_val),
+        best_date = max(PlotDate[y_val == best_val]),
+        .groups = "drop"
+      )
+    
     p <- ggplot(df_plot, aes(x=PlotDate, y=y_val, color=Name, text=tooltip_text))
     
     if (is_high) {
@@ -308,7 +328,7 @@ server <- function(input, output, session) {
       p <- p + geom_segment(
         data=max_heights,
         aes(x=last_date, xend=max(df_plot$PlotDate)+1, y=max_height, yend=max_height, color=Name),
-        linetype="solid", size=1, inherit.aes=FALSE
+        linetype="solid", size=1, alpha=0.35, inherit.aes=FALSE
       )
     } else {
       # Long/Triple jumps
@@ -323,7 +343,34 @@ server <- function(input, output, session) {
               legend.position = "bottom",
               legend.title = element_text(size = 10),
               legend.text = element_text(size = 9))
+      
+      # Meet Best
+      p <- p +
+        geom_point(
+          data = best_per_meet,
+          aes(x = best_date, y = best_val, color = Name, group = Name),
+          size = 4,
+          shape = 21,
+          stroke = 0.4,
+          fill = NA,
+          color = "black",
+          inherit.aes = FALSE
+        )
+      
+      # Season Best
+      p <- p +
+        geom_point(
+          data = season_best,
+          aes(x = best_date, y = best_val, color = Name, group = Name),
+          size = 4,
+          shape = 21,
+          stroke = 0.7,
+          color = "black",
+          fill = NA,
+          inherit.aes = FALSE
+        )
     }
+    
     
     # Trendlines
     if (input$trendType == "Linear") {
