@@ -246,9 +246,9 @@ server <- function(input, output, session) {
     
     # Trendlines
     if (input$trendType == "Linear") {
-      p <- p + geom_smooth(aes(group = Name), method = "lm", se = FALSE, size = 0.4)
+      p <- p + geom_smooth(aes(group = Name), method = "lm", se = FALSE, size = 0.2)
     } else {
-      p <- p + geom_smooth(aes(group = Name), method = "loess", se = FALSE, size = 0.4)
+      p <- p + geom_smooth(aes(group = Name), method = "loess", se = FALSE, size = 0.2)
     }
     
     ggplotly(p, tooltip = "text") %>%
