@@ -1,16 +1,16 @@
 Name,Division,Date,Meet,Event,Try,Height,Result
-Travis Torres,Boy,03/14/2026,Jamboree,High,?,"5'10""",O
-John Boehl,Boy,03/14/2026,Jamboree,High,?,"5'8""",O
-Ryder Wray,Boy,03/14/2026,Jamboree,High,?,"5'6""",O
-Ryan Fox,Boy,03/14/2026,Jamboree,High,?,"5'6""",O
-Conner Lillquist,Boy,03/14/2026,Jamboree,High,?,"5'4""",O
-Leo Wray,Boy,03/14/2026,Jamboree,High,?,"4'8""",O
+Travis Torres,Boy,03/14/2026,Jamboree,High,0,"5'10""",O
+John Boehl,Boy,03/14/2026,Jamboree,High,0,"5'8""",O
+Ryder Wray,Boy,03/14/2026,Jamboree,High,0,"5'6""",O
+Ryan Fox,Boy,03/14/2026,Jamboree,High,0,"5'6""",O
+Conner Lillquist,Boy,03/14/2026,Jamboree,High,0,"5'4""",O
+Leo Wray,Boy,03/14/2026,Jamboree,High,0,"4'8""",O
 Josiah Walker,Boy,03/14/2026,Jamboree,High,1,"5'8""",X
 Josiah Walker,Boy,03/14/2026,Jamboree,High,2,"5'8""",X
 Josiah Walker,Boy,03/14/2026,Jamboree,High,3,"5'8""",X
-Hannah Roche,Girl,03/14/2026,Jamboree,High,?,"4'4""",O
-Makenna Spencer,Girl,03/14/2026,Jamboree,High,?,"4'2""",O
-Summer Ermine,Girl,03/14/2026,Jamboree,High,?,"4'2""",O
+Hannah Roche,Girl,03/14/2026,Jamboree,High,0,"4'4""",O
+Makenna Spencer,Girl,03/14/2026,Jamboree,High,0,"4'2""",O
+Summer Ermine,Girl,03/14/2026,Jamboree,High,0,"4'2""",O
 Makenna Spencer,Girl,03/21/2026,Ray Cockrum,High,1,"4'2""",O
 Makenna Spencer,Girl,03/21/2026,Ray Cockrum,High,2,"4'4""",X
 Makenna Spencer,Girl,03/21/2026,Ray Cockrum,High,3,"4'4""",O
@@ -51,9 +51,9 @@ Josiah Walker,Boy,03/21/2026,Ray Cockrum,High,7,"6'0""",O
 Josiah Walker,Boy,03/21/2026,Ray Cockrum,High,8,"6'3""",X
 Josiah Walker,Boy,03/21/2026,Ray Cockrum,High,9,"6'3""",X
 Josiah Walker,Boy,03/21/2026,Ray Cockrum,High,10,"6'3""",X
-Summer Ermine,Girl,03/25/2026,Othello JV,High,?,"4'4""",O
-Makenna Spencer,Girl,03/25/2026,Othello JV,High,?,"4'2""",O
-Taryn Barton,Girl,03/25/2026,Othello JV,High,?,"3'10""",O
+Summer Ermine,Girl,03/25/2026,Othello JV,High,0,"4'4""",O
+Makenna Spencer,Girl,03/25/2026,Othello JV,High,0,"4'2""",O
+Taryn Barton,Girl,03/25/2026,Othello JV,High,0,"3'10""",O
 John Boehl,Boy,03/25/2026,Othello JV,High,1,"5'2""",O
 John Boehl,Boy,03/25/2026,Othello JV,High,2,"5'4""",O
 John Boehl,Boy,03/25/2026,Othello JV,High,3,"5'6""",O
