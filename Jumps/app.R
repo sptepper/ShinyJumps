@@ -63,6 +63,17 @@ convert_height_to_ft <- function(h) {
   return(feet + inches/12)
 }
 
+format_height_ft_in <- function(x) {
+  feet <- floor(x)
+  inches <- round((x - feet) * 12)
+  
+  # Handle rounding edge case (e.g. 5.999 -> 6'0)
+  feet <- ifelse(inches == 12, feet + 1, feet)
+  inches <- ifelse(inches == 12, 0, inches)
+  
+  paste0(feet, "'", inches)
+}
+
 df_high$Height_ft <- sapply(df_high$Height, convert_height_to_ft)
 
 df_high <- df_high %>%
@@ -231,6 +242,15 @@ server <- function(input, output, session) {
     df_filtered
   })
   
+  all_athletes <- sort(unique(df_all$Name))
+  
+  # Generate stable color palette
+  palette_colors <- RColorBrewer::brewer.pal(8, "Set2")
+  palette_colors <- colorRampPalette(palette_colors)(length(all_athletes))
+  
+  
+  athlete_colors <- setNames(palette_colors, all_athletes)
+  
   ranked_athletes <- reactive({
     df_filtered <- df_all %>%
       filter(Year == input$year)
@@ -338,6 +358,46 @@ server <- function(input, output, session) {
         aes(label="X"),
         size = 4, fontface = "bold"
       )
+      
+      # clear percentage per height
+      clear_pct <- df_plot %>%
+        filter(!is.na(y_val)) %>%
+        group_by(Name, Height_ft) %>%
+        summarize(
+          attempts = n(),
+          clears = sum(Result == "O", na.rm = TRUE),
+          pct = clears / attempts,
+          .groups = "drop"
+        )
+      
+      athlete_order <- df_plot %>%
+        distinct(Name) %>%
+        arrange(Name) %>%
+        mutate(offset_index = row_number())
+      
+      clear_pct <- clear_pct %>%
+        left_join(athlete_order, by = "Name")
+      
+      x_min <- min(df_plot$PlotDate, na.rm = TRUE)
+      
+      clear_pct <- clear_pct %>%
+        mutate(
+          label = paste0(round(pct * 100), "%"),
+          x_pos = x_min - 0.5 + (offset_index - 1) * 0.3
+        )
+      
+      p <- p +
+        geom_text(
+          data = clear_pct,
+          aes(x = x_pos, y = Height_ft, label = label, color = Name),
+          size = 3,
+          hjust = 1,
+          inherit.aes = FALSE
+        )
+      
+      p <- p +
+        scale_color_manual(values = athlete_colors)
+      
       # Max cleared height line
       max_heights <- df_plot %>% filter(Result=="O") %>% group_by(Name) %>%
         summarize(max_height=max(y_val,na.rm=TRUE),
@@ -346,6 +406,26 @@ server <- function(input, output, session) {
         data=max_heights,
         aes(x=last_date, xend=max(df_plot$PlotDate)+1, y=max_height, yend=max_height, color=Name),
         linetype="solid", size=1, alpha=0.35, inherit.aes=FALSE
+      )
+      
+      y_min <- floor(min(df_plot$y_val, na.rm = TRUE) * 6) / 6
+      y_max <- ceiling(max(df_plot$y_val, na.rm = TRUE) * 6) / 6
+      
+      # 2-inch increments = 1/6 ft
+      minor_breaks <- seq(y_min, y_max, by = 1/6)
+      
+      # Whole feet
+      major_breaks <- seq(floor(y_min), ceiling(y_max), by = 1)
+      
+      p <- p +
+        scale_y_continuous(
+          breaks = minor_breaks,
+          labels = format_height_ft_in,
+        )
+      
+      theme(
+        panel.grid.major.y = element_line(color = "gray60", size = 0.6),
+        panel.grid.minor.y = element_line(color = "gray80", size = 0.3)
       )
     } else {
       # Long/Triple jumps
