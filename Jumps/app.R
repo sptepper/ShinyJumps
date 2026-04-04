@@ -116,6 +116,8 @@ ui <- fluidPage(
                     choices = c("2025","2026"),
                     selected = "2026", width = "100px"),
         
+        checkboxInput("showPrevYear", "Show Previous Year", value = FALSE),
+        
         selectInput("event", " " ,
                     choices = c("Long","Triple","High"),
                     selected = "Long", width = "120px"),
@@ -217,12 +219,17 @@ server <- function(input, output, session) {
     df_filtered <- df_all %>%
       filter(Year == input$year)
     
+
+    
     if (input$division != "All") {
       df_filtered <- df_filtered %>% filter(Division == input$division)
     }
     
+
+    
     df_filtered <- df_filtered %>%
       filter(grepl(input$event, Event, ignore.case = TRUE))
+
     
     # Get ranked athletes
     ranks <- ranked_athletes()
@@ -282,6 +289,25 @@ server <- function(input, output, session) {
   
   output$jumpPlot <- renderPlotly({
     df_plot <- filtered_data()
+    
+    current_year <- input$year
+    prev_year <- as.character(as.numeric(current_year) - 1)
+    
+    # Prev year filtering
+    if (input$division != "All") {
+      df_prev <- df_prev %>% filter(Division == input$division)
+    }
+    
+    df_prev <- df_all %>%
+      filter(Year == prev_year)
+    df_prev <- df_prev %>%
+      filter(grepl(input$event, Event, ignore.case = TRUE))
+    
+    visible_names <- unique(df_plot$Name)
+    
+    df_prev <- df_prev %>%
+      filter(Name %in% visible_names)
+    
     is_high <- grepl("High", input$event, ignore.case=TRUE)
     
     if (is_high) {
@@ -342,6 +368,42 @@ server <- function(input, output, session) {
         best_val = first(best_val),
         best_date = max(PlotDate[y_val == best_val]),
         .groups = "drop"
+      )
+    
+    ## Previous Year
+    # Get current meet layout
+    meet_map <- df_plot %>%
+      group_by(Meet) %>%
+      summarize(
+        start = min(PlotDate),
+        end = max(PlotDate),
+        mid = mean(c(start, end)),
+        .groups = "drop"
+      )
+    
+    prev_meets <- df_prev %>%
+      distinct(Meet, Date) %>%
+      arrange(Date) %>%
+      mutate(meet_index = row_number())
+    
+    current_meets <- meet_map %>%
+      arrange(start) %>%
+      mutate(meet_index = row_number())
+    
+    df_prev <- df_prev %>%
+      left_join(prev_meets, by = "Meet") %>%
+      left_join(current_meets, by = "meet_index", suffix = c("", "_curr"))
+    
+    df_prev <- df_prev %>%
+      group_by(Meet) %>%
+      arrange(Height_ft, TryNum) %>%
+      mutate(
+        attempt_index = row_number(),
+        total_attempts = n()
+      ) %>%
+      ungroup() %>%
+      mutate(
+        PlotDate = start + (attempt_index / total_attempts) * (end - start)
       )
     
     p <- ggplot(df_plot, aes(x=PlotDate, y=y_val, color=Name, text=tooltip_text))
@@ -489,6 +551,50 @@ server <- function(input, output, session) {
         )
       }
     }
+    
+    # Previous Year
+    if (input$showPrevYear && nrow(df_prev) > 0) {
+      
+      df_prev$y_val <- if (is_high) df_prev$Height_ft else df_prev$Distance_ft
+      
+      # Points
+      p <- p +
+        geom_point(
+          data = df_prev,
+          aes(x = PlotDate, y = y_val, color = Name),
+          alpha = 0.15,
+          size = 2,
+          inherit.aes = FALSE
+        )
+      
+      # High jump X marks
+      if (is_high) {
+        p <- p +
+          geom_text(
+            data = df_prev %>% filter(Result == "X"),
+            aes(x = PlotDate, y = y_val, label = "X", color = Name),
+            alpha = 0.15,
+            size = 3,
+            inherit.aes = FALSE
+          )
+      }
+      
+      # previous trendlines
+      if (!is_high && input$trendType != "None") {
+        p <- p +
+          geom_smooth(
+            data = df_prev,
+            aes(x = PlotDate, y = y_val, group = Name, color = Name),
+            method = ifelse(input$trendType == "Linear", "lm", "loess"),
+            se = FALSE,
+            alpha = 0.1,
+            size = 0.2,
+            linetype="dashed",
+            inherit.aes = FALSE
+          )
+      }
+    }
+    
     
     ggplotly(p, tooltip = "text") %>%
       layout(legend = list(orientation = "h", x = 0.5, xanchor = "center", y = -0.3))
