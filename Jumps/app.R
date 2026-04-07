@@ -4,6 +4,7 @@ library(plotly)
 library(dplyr)
 library(readr)
 library(shinyjs)
+library(zoo)
 
 # --- Load & prepare data ---
 df2025 <- read_csv("jumps.csv")
@@ -137,7 +138,7 @@ ui <- fluidPage(
         selectInput(
           "trendType",
           "Trend:",
-          choices = c("None", "Linear", "LOESS", "Average"),
+          choices = c("None", "Linear", "LOESS", "Average", "Rolling Avg (4)"),
           selected = "Linear",
           width = "120px"
         ),
@@ -586,6 +587,33 @@ server <- function(input, output, session) {
             inherit.aes = FALSE
           )
       }
+      else if (input$trendType == "Rolling Avg (4)") {
+        
+        rolling_df <- df_plot %>%
+          arrange(Name, PlotDate) %>%
+          group_by(Name) %>%
+          mutate(
+            roll_avg = zoo::rollapply(
+              y_val,
+              width = 4,
+              FUN = mean,
+              align = "right",
+              fill = NA,
+              na.rm = TRUE
+            )
+          ) %>%
+          ungroup()
+        
+        p <- p +
+          geom_line(
+            data = rolling_df,
+            aes(x = PlotDate, y = roll_avg, color = Name, group = Name),
+            size = 0.8,
+            alpha = 0.7,
+            na.rm = TRUE,
+            inherit.aes = FALSE
+          )
+      }
     }
     
     # Previous Year
@@ -659,6 +687,33 @@ server <- function(input, output, session) {
               linetype = "dashed",
               size = 0.2,
               alpha = 0.1,
+              inherit.aes = FALSE
+            )
+        }
+        else if (input$trendType == "Rolling Avg (4)") {
+          
+          rolling_df <- df_prev %>%
+            arrange(Name, PlotDate) %>%
+            group_by(Name) %>%
+            mutate(
+              roll_avg = zoo::rollapply(
+                y_val,
+                width = 4,
+                FUN = mean,
+                align = "right",
+                fill = NA,
+                na.rm = TRUE
+              )
+            ) %>%
+            ungroup()
+          
+          p <- p +
+            geom_line(
+              data = rolling_df,
+              aes(x = PlotDate, y = roll_avg, color = Name, group = Name),
+              size = 0.8,
+              alpha = 0.7,
+              na.rm = TRUE,
               inherit.aes = FALSE
             )
         }
