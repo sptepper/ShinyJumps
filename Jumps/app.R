@@ -179,18 +179,6 @@ ui <- fluidPage(
 # --- Server ---
 server <- function(input, output, session) {
   
-  observeEvent(input$btnHideTop5, {
-    top5_state$hideTop5 <- !top5_state$hideTop5
-    if(top5_state$hideTop5) top5_state$hideBelowTop5 <- FALSE
-    toggleClass("btnHideTop5","btn-active",condition=top5_state$hideTop5)
-  })
-  
-  observeEvent(input$btnHideBelowTop5, {
-    top5_state$hideBelowTop5 <- !top5_state$hideBelowTop5
-    if(top5_state$hideBelowTop5) top5_state$hideTop5 <- FALSE
-    toggleClass("btnHideBelowTop5","btn-active",condition=top5_state$hideBelowTop5)
-  })
-  
   # Update athlete list based on year/event/division
   observe({
     req(input$year, input$event, input$division)
@@ -291,23 +279,6 @@ server <- function(input, output, session) {
     df_plot <- filtered_data()
     
     current_year <- input$year
-    prev_year <- as.character(as.numeric(current_year) - 1)
-    
-    # Prev year filtering
-    if (input$division != "All") {
-      df_prev <- df_prev %>% filter(Division == input$division)
-    }
-    
-    df_prev <- df_all %>%
-      filter(Year == prev_year)
-    df_prev <- df_prev %>%
-      filter(grepl(input$event, Event, ignore.case = TRUE))
-    
-    visible_names <- unique(df_plot$Name)
-    
-    df_prev <- df_prev %>%
-      filter(Name %in% visible_names)
-    
     is_high <- grepl("High", input$event, ignore.case=TRUE)
     
     if (is_high) {
@@ -370,41 +341,81 @@ server <- function(input, output, session) {
         .groups = "drop"
       )
     
-    ## Previous Year
-    # Get current meet layout
-    meet_map <- df_plot %>%
-      group_by(Meet) %>%
-      summarize(
-        start = min(PlotDate),
-        end = max(PlotDate),
-        mid = mean(c(start, end)),
-        .groups = "drop"
-      )
+    if (input$showPrevYear) {
+      
+      prev_year <- as.character(as.numeric(current_year) - 1)
+      
+      df_prev <- df_all %>%
+        filter(Year == prev_year)
+      
+      # Prev year filtering
+      if (input$division != "All") {
+        df_prev <- df_prev %>% filter(Division == input$division)
+      }
+      
+      df_prev <- df_prev %>%
+        filter(grepl(input$event, Event, ignore.case = TRUE))
+      
+      visible_names <- unique(df_plot$Name)
+      
+      df_prev <- df_prev %>%
+        filter(Name %in% visible_names)
+      
+      if(nrow(df_prev) > 0)
+      {
+      
+        ## Previous Year shift up
+        df_prev <- df_prev %>%
+          mutate(
+            Date = as.Date(Date, format = "%m/%d/%Y"),  # force correct parsing
+            Date = as.Date(paste0(input$year, "-", format(Date, "%m-%d")))
+          )
+        
+        if (is_high){
+          df_prev <- df_prev %>%
+            group_by(Meet, Date) %>%
+            arrange(Height_ft, TryNum) %>%
+            mutate(
+              attempt_index = row_number(),
+              total_attempts = n()
+            ) %>%
+            ungroup() %>%
+            mutate(
+              PlotDate = Date + (attempt_index / total_attempts) * (1 + log(total_attempts))
+            )
+        } else {
+          
+          df_prev <- df_prev %>%
+            mutate(
+              Offset = TryNum * 0.6,
+              PlotDate = Date + Offset
+            )
+        }
+        
+        df_prev$tooltip_text <- if (is_high) {
+          paste(
+            "Athlete:", df_prev$Name,
+            "<br>Date:", format(df_prev$Date,"%b %d, 2025"),
+            "<br>Meet:", df_prev$Meet,
+            "<br>Height:", df_prev$Height,
+            "<br>Result:", df_prev$Result,
+            "<br>Attempt:", df_prev$TryNum
+          )
+        } else {
+          paste(
+            "Athlete:", df_prev$Name,
+            "<br>Date:", format(df_prev$Date,"%b %d, 2025"),
+            "<br>Meet:", df_prev$Meet,
+            "<br>Division:", df_prev$Division,
+            "<br>Event:", df_prev$Event,
+            "<br>Attempt:", df_prev$TryNum,
+            "<br>Mark:", df_prev$Mark,
+            "<br>Distance:", round(y_col,2),"ft"
+          )
+        }
+      }
+    }
     
-    prev_meets <- df_prev %>%
-      distinct(Meet, Date) %>%
-      arrange(Date) %>%
-      mutate(meet_index = row_number())
-    
-    current_meets <- meet_map %>%
-      arrange(start) %>%
-      mutate(meet_index = row_number())
-    
-    df_prev <- df_prev %>%
-      left_join(prev_meets, by = "Meet") %>%
-      left_join(current_meets, by = "meet_index", suffix = c("", "_curr"))
-    
-    df_prev <- df_prev %>%
-      group_by(Meet) %>%
-      arrange(Height_ft, TryNum) %>%
-      mutate(
-        attempt_index = row_number(),
-        total_attempts = n()
-      ) %>%
-      ungroup() %>%
-      mutate(
-        PlotDate = start + (attempt_index / total_attempts) * (end - start)
-      )
     
     p <- ggplot(df_plot, aes(x=PlotDate, y=y_val, color=Name, text=tooltip_text))
     
@@ -561,7 +572,7 @@ server <- function(input, output, session) {
       p <- p +
         geom_point(
           data = df_prev,
-          aes(x = PlotDate, y = y_val, color = Name),
+          aes(x = PlotDate, y = y_val, color = Name, text = tooltip_text),
           alpha = 0.15,
           size = 2,
           inherit.aes = FALSE
@@ -572,7 +583,7 @@ server <- function(input, output, session) {
         p <- p +
           geom_text(
             data = df_prev %>% filter(Result == "X"),
-            aes(x = PlotDate, y = y_val, label = "X", color = Name),
+            aes(x = PlotDate, y = y_val, label = "X", color = Name, text = tooltip_text),
             alpha = 0.15,
             size = 3,
             inherit.aes = FALSE
