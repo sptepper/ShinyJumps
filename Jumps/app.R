@@ -138,7 +138,7 @@ ui <- fluidPage(
         selectInput(
           "trendType",
           "Trend:",
-          choices = c("None", "Linear", "LOESS", "Average", "Rolling Avg (4)"),
+          choices = c("None", "Linear", "LOESS", "Average", "Rolling Avg (6)"),
           selected = "Linear",
           width = "120px"
         ),
@@ -242,15 +242,6 @@ server <- function(input, output, session) {
     
     df_filtered
   })
-  
-  all_athletes <- sort(unique(df_all$Name))
-  
-  # Generate stable color palette
-  palette_colors <- RColorBrewer::brewer.pal(8, "Set2")
-  palette_colors <- colorRampPalette(palette_colors)(length(all_athletes))
-  
-  
-  athlete_colors <- setNames(palette_colors, all_athletes)
   
   ranked_athletes <- reactive({
     df_filtered <- df_all %>%
@@ -422,8 +413,19 @@ server <- function(input, output, session) {
       }
     }
     
+    ## Set up Color palette
+    all_athletes <- sort(unique(df_plot$Name))
+    ## palette_colors <- RColorBrewer::brewer.pal(8, "Set2")
+    ## palette_colors <- scales::hue_pal(l = 60, c = 100)(length(all_athletes))
+    palette_colors <- scales::hue_pal()(length(all_athletes))
+    palette_colors <- colorRampPalette(palette_colors)(length(all_athletes))
+
+    athlete_colors <- setNames(palette_colors, all_athletes)
     
     p <- ggplot(df_plot, aes(x=PlotDate, y=y_val, color=Name, text=tooltip_text))
+    
+    p <- p +
+      scale_color_manual(values = athlete_colors)
     
     if (is_high) {
       # Successes
@@ -473,9 +475,6 @@ server <- function(input, output, session) {
           hjust = 1,
           inherit.aes = FALSE
         )
-      
-      p <- p +
-        scale_color_manual(values = athlete_colors)
       
       # Max cleared height line
       max_heights <- df_plot %>% filter(Result=="O") %>% group_by(Name) %>%
@@ -587,7 +586,7 @@ server <- function(input, output, session) {
             inherit.aes = FALSE
           )
       }
-      else if (input$trendType == "Rolling Avg (4)") {
+      else if (input$trendType == "Rolling Avg (6)") {
         
         rolling_df <- df_plot %>%
           arrange(Name, PlotDate) %>%
@@ -595,7 +594,7 @@ server <- function(input, output, session) {
           mutate(
             roll_avg = zoo::rollapply(
               y_val,
-              width = 4,
+              width = 6,
               FUN = mean,
               align = "right",
               fill = NA,
@@ -690,7 +689,7 @@ server <- function(input, output, session) {
               inherit.aes = FALSE
             )
         }
-        else if (input$trendType == "Rolling Avg (4)") {
+        else if (input$trendType == "Rolling Avg (6)") {
           
           rolling_df <- df_prev %>%
             arrange(Name, PlotDate) %>%
@@ -698,7 +697,7 @@ server <- function(input, output, session) {
             mutate(
               roll_avg = zoo::rollapply(
                 y_val,
-                width = 4,
+                width = 6,
                 FUN = mean,
                 align = "right",
                 fill = NA,
