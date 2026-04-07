@@ -112,16 +112,19 @@ ui <- fluidPage(
         style = "display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-bottom: 15px;",
         
         # Filters
-        selectInput("year",  " ",
-                    choices = c("2025","2026"),
-                    selected = "2026", width = "100px"),
-        
-        checkboxInput("showPrevYear", "Show Previous Year", value = FALSE),
+        div(
+          style = "display: flex; flex-direction: column; align-items: flex-start;",
+          checkboxInput("showPrevYear", "Previous Year", value = FALSE,  width = "120px"),
+          selectInput("year", "Year:",
+                      choices = c("2025","2026"),
+                      selected = "2026", width = "100px"),
+
+
+        ),
         
         selectInput("event", " " ,
                     choices = c("Long","Triple","High"),
                     selected = "Long", width = "120px"),
-        
         
         selectInput("division", "Division:",
                     choices = c("All", unique(df_all$Division)),
@@ -134,10 +137,12 @@ ui <- fluidPage(
         selectInput(
           "trendType",
           "Trend:",
-          choices = c("None", "Linear", "LOESS"),
-          selected = "None",
+          choices = c("None", "Linear", "LOESS", "Average"),
+          selected = "Linear",
           width = "120px"
         ),
+        
+
         
         sliderInput(
           "rankRange",
@@ -544,6 +549,7 @@ server <- function(input, output, session) {
     
     # Trendlines
     if (!is_high && input$trendType != "None") {
+      
       if (input$trendType == "Linear") {
         p <- p + geom_smooth(
           aes(group = Name),
@@ -552,6 +558,7 @@ server <- function(input, output, session) {
           size = 0.4,
           alpha = 0.25
         )
+        
       } else if (input$trendType == "LOESS") {
         p <- p + geom_smooth(
           aes(group = Name),
@@ -560,6 +567,24 @@ server <- function(input, output, session) {
           size = 0.4,
           alpha = 0.25
         )
+        
+      } else if (input$trendType == "Average") {
+        
+        avg_lines <- df_plot %>%
+          group_by(Name) %>%
+          summarize(
+            avg = mean(y_val, na.rm = TRUE),
+            .groups = "drop"
+          )
+        
+        p <- p +
+          geom_hline(
+            data = avg_lines,
+            aes(yintercept = avg, color = Name),
+            size = 0.6,
+            alpha = 0.6,
+            inherit.aes = FALSE
+          )
       }
     }
     
@@ -591,19 +616,54 @@ server <- function(input, output, session) {
       }
       
       # previous trendlines
+      
       if (!is_high && input$trendType != "None") {
-        p <- p +
-          geom_smooth(
+        
+        if (input$trendType == "Linear") {
+          p <- p + geom_smooth(
             data = df_prev,
             aes(x = PlotDate, y = y_val, group = Name, color = Name),
-            method = ifelse(input$trendType == "Linear", "lm", "loess"),
+            linetype = "dashed",
+            method = "lm",
             se = FALSE,
-            alpha = 0.1,
             size = 0.2,
-            linetype="dashed",
+            alpha = 0.1,
             inherit.aes = FALSE
           )
+          
+        } else if (input$trendType == "LOESS") {
+          p <- p + geom_smooth(
+            data = df_prev,
+            aes(x = PlotDate, y = y_val, group = Name, color = Name),
+            linetype = "dashed",
+            method = "loess",
+            se = FALSE,
+            size = 0.2,
+            alpha = 0.1,
+            inherit.aes = FALSE
+          )
+          
+        } else if (input$trendType == "Average") {
+          
+          avg_lines_prev <- df_prev %>%
+            group_by(Name) %>%
+            summarize(
+              avg = mean(df_prev$y_val, na.rm = TRUE),
+              .groups = "drop"
+            )
+          
+          p <- p +
+            geom_hline(
+              data = avg_lines_prev,
+              aes(yintercept = avg, color = Name),
+              linetype = "dashed",
+              size = 0.2,
+              alpha = 0.1,
+              inherit.aes = FALSE
+            )
+        }
       }
+      
     }
     
     
