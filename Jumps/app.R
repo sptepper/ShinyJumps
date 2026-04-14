@@ -685,7 +685,7 @@ server <- function(input, output, session) {
               aes(yintercept = avg, color = Name),
               linetype = "dashed",
               size = 0.2,
-              alpha = 0.1,
+              alpha = 0.4,
               inherit.aes = FALSE
             )
         }
@@ -711,6 +711,7 @@ server <- function(input, output, session) {
               data = rolling_df,
               aes(x = PlotDate, y = roll_avg, color = Name, group = Name),
               size = 0.8,
+              linetype = "dashed",
               alpha = 0.7,
               na.rm = TRUE,
               inherit.aes = FALSE
