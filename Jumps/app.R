@@ -94,7 +94,7 @@ df_high <- df_high %>%
 
 df_high <- df_high %>%
   mutate(
-    PlotDate = Date + (attempt_index / total_attempts) * 2  # <-- controls width
+    PlotDate = Date + (attempt_index / total_attempts) * (1.5 + 0.15 * total_attempts) # <-- controls width
   )
 
 # Combine all
@@ -315,7 +315,7 @@ server <- function(input, output, session) {
     y_max <- max(df_plot$y_val, na.rm=TRUE)
     
     meet_bounds <- df_plot %>% group_by(Meet) %>%
-      summarize(start=min(PlotDate), end=max(PlotDate),
+      summarize(padding = 0.3,start=min(PlotDate), end=max(PlotDate),
                 mid=mean(c(min(PlotDate),max(PlotDate))), .groups="drop")
     
     best_per_meet <- df_plot %>%
