@@ -417,8 +417,16 @@ server <- function(input, output, session) {
     all_athletes <- sort(unique(df_plot$Name))
     ## palette_colors <- RColorBrewer::brewer.pal(8, "Set2")
     ## palette_colors <- scales::hue_pal(l = 60, c = 100)(length(all_athletes))
-    palette_colors <- scales::hue_pal()(length(all_athletes))
-    palette_colors <- colorRampPalette(palette_colors)(length(all_athletes))
+    if(length(all_athletes) > 0)
+    {
+      palette_colors <- scales::hue_pal()(length(all_athletes))
+      palette_colors <- colorRampPalette(palette_colors)(length(all_athletes))
+    }
+    else
+    {
+      palette_colors <- RColorBrewer::brewer.pal(8, "Set2")
+    }
+
 
     athlete_colors <- setNames(palette_colors, all_athletes)
     
